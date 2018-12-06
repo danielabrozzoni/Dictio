@@ -7,11 +7,13 @@ Ogni gruppo definisce un titolo progetto (< 100 caratteri) e una descrizione( <5
 ## Partecipanti
 Elenco partecipanti
 
-## Ruoli
+## Roles
 
-* PROJECT_MANAGER = 
-* DOCUMENTAZIONE = 
-* CSS = 
+* PROJECT_MANAGER = Daniela Brozzoni
+* DOCUMENTATION = Victor Mita
+* REACT = Victor Mita, Aldo Carrolo
+* NODE = Daniela Brozzoni, Aldo Carrolo
+* CSS = Aldo Carrolo
 
 ## Regolamento
 * Ogni gruppo consegnerà il link ad un repository GIT che sarà un fork di questo progetto.
