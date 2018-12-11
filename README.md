@@ -1,14 +1,12 @@
-# Scheletro per i lavori di gruppo
-
 ## Titolo progetto 
+Improve your english while playing with your friends!
 
-Ogni gruppo definisce un titolo progetto (< 100 caratteri) e una descrizione( <500 caratteri)
-
-## Partecipanti
-Elenco partecipanti
+## Partecipants
+Brozzoni Daniela
+Carrolo Aldo
+Mita Victor
 
 ## Roles
-
 * PROJECT_MANAGER = Daniela Brozzoni
 * DOCUMENTATION = Victor Mita
 * REACT = Victor Mita, Aldo Carrolo
