@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <script src="/socket.io/socket.io.js"></script>
+    </head>
+    <body>
+        <script>
+        var socket = io();
+
+        var random = Math.random();
+
+        var happy = function(){
+            socket.emit('happy',{
+                reason:'its my birthday' + random
+            });
+        }
+
+        socket.on('serverMsg',function(data){
+            console.log(data.msg);
+        });
+
+
+        </script>
+        ciao
+    </body>
+</html>
