@@ -19,20 +19,24 @@ io.sockets.on('connection', function(socket){
     // search a not full room
     searchRoom(player);
 
-    // create a room
-    //createRoom();
 });
 
 function createRoom(player) {
-    rooms.push(new Room()).player.push(player);
+
+    let r = new Room();
+    console.log(r);
+    r.player.push(player);
+    rooms.push(r);
+    console.log("Room created");
 }
 
 function searchRoom(player) {
 
     for (r in rooms) {
-        if(r.player.length < r.MAX_NUMBER_PLAYER) {
+        if(rooms[r].player.length < rooms[r].MAX_NUMBER_PLAYER) {
             // insert the player in the room 
-            r.player.push(player);
+            rooms[r].player.push(player);
+            console.log("Player added");
             return;
         }
     }
@@ -44,16 +48,15 @@ function searchRoom(player) {
 let rooms = [];
 
 // Room CLASS
-function room() {
+function Room() {
 
-    const MAX_NUMBER_PLAYER = 5;
-
-    let player = [];
+    this.MAX_NUMBER_PLAYER = 5;
+    this.player = [];
 }
 
 // Player CLASS
-function Player(_socket) {
+function Player(socket) {
 
-    let socket = _socket;
-    let score;
+    this.socket = socket;
+    this.score = 0;
 }
