@@ -6,30 +6,52 @@
 
         <script>
 
-            var createRoom = function() {
-                var socket = io();
-                socket.emit('New room');
-            }
+        var socket;
 
-            var joinRoom = function(_code) {
-                var socket = io();
-                socket.emit('Join room', {
-                    code : _code
-                });
-            }
+        let menu = document.createElement("div");
+        menu.innerHTML = '<div id="menu"><input type = "text" id = "code"></div><div><button onClick="joinRoom(document.getElementById(\'code\').value)"> JOIN GAME </button></div><div><button onClick="createRoom()"> NEW GAME</button></div>';
 
+        socket = io();
+
+        var createRoom = function() {
+
+            socket.emit('New room');
+
+            show_room();
+        }
+
+        var joinRoom = function(_code) {
+
+            socket.emit('Join room', {
+                code : _code
+            });
+
+            show_room();
+        }
+
+        function show_menu() {
+
+            document.body.innerHTML = "";
+
+            document.body.appendChild(menu);
+        }
+
+        function show_room() {
+
+            document.body.innerHTML = "";
+
+            document.write("Questa è una stanza!");
+        }
+
+        socket.on("Room created", function() {
+
+            show_room();
+        });
+
+
+
+        show_menu();
         </script>
-        <div>
-            <button onClick="createRoom()"> NEW GAME</button>
-        </div>
-        <div>
-            <div>
-                <input type = "text" id = "code">
-            </div>
-            <div>
-                <button onClick="joinRoom(document.getElementById('code').value)"> JOIN GAME </button>
-            </div>
-        </div>
 
     </body>
 </html>

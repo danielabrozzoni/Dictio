@@ -26,6 +26,8 @@ io.sockets.on('connection', function(socket){
         rooms.push(r);
         console.log(rooms);
         socket.join(r.code);
+
+        socket.emit("Room created");
     });
 
     socket.on('Join room', function(code) {
@@ -43,6 +45,8 @@ io.sockets.on('connection', function(socket){
 
                     console.log(rooms[r]);
                     socket.join(rooms[r].code);
+
+                    socket.emit("Room created");
 
                 } else {
 
@@ -72,7 +76,7 @@ function Room() {
 
     this.players = [];
     this.code = createCode();
-    this.MAX_NUMBER_PLAYER = 10;
+    this.MAX_NUMBER_PLAYER = 2;
 
     this.isFull = function () {
 
