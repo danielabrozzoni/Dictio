@@ -4,31 +4,25 @@
     </head>
     <body>
 
-        <button onClick="createRoom()"> NEW GAME</button>
-        <button> JOIN GAME </button>
-
         <script>
-        //var socket = io();
 
-        var random = Math.random();
+            var createRoom = function() {
+                var socket = io();
+                socket.emit('New room');
+            }
 
-        var createRoom = function() {
-            var socket = io();
-            socket.emit('New room');
-        }
-
-        var happy = function(){
-            socket.emit('happy',{
-                reason:'its my birthday' + random
-            });
-        }
-
-        socket.on('serverMsg',function(data){
-            console.log(data.msg);
-        });
-
+            var joinRoom = function(_code) {
+                var socket = io();
+                socket.emit('Join room', {
+                    code : _code
+                });
+            }
 
         </script>
-        ciao
+
+        <button onClick="createRoom()"> NEW GAME</button>
+        <button onClick="joinRoom(document.getElementById('code').value)"> JOIN GAME </button>
+        <input type = "text" id = "code">
+
     </body>
 </html>

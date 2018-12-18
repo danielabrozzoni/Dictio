@@ -24,6 +24,10 @@ io.sockets.on('connection', function(socket){
         console.log(r);
         socket.join(r.code);   
     });
+
+    socket.on('Join room', function(code) {
+        console.log('Join ' + code.code);
+    });
     
 });
 
