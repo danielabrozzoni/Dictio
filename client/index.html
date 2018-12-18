@@ -19,10 +19,17 @@
             }
 
         </script>
-
-        <button onClick="createRoom()"> NEW GAME</button>
-        <button onClick="joinRoom(document.getElementById('code').value)"> JOIN GAME </button>
-        <input type = "text" id = "code">
+        <div>
+            <button onClick="createRoom()"> NEW GAME</button>
+        </div>
+        <div>
+            <div>
+                <input type = "text" id = "code">
+            </div>
+            <div>
+                <button onClick="joinRoom(document.getElementById('code').value)"> JOIN GAME </button>
+            </div>
+        </div>
 
     </body>
 </html>
