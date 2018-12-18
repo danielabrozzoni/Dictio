@@ -48,6 +48,8 @@ io.sockets.on('connection', function(socket){
 
                     console.log("Room is full!");
                 }
+
+                break;
             } else {
 
                 console.log("Room doesn't exist");
