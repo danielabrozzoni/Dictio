@@ -11,18 +11,29 @@
             <button onClick="createRoom()"> NEW GAME</button>
         </div>
 
-        <div id="game" style="display: none">
+        <div id="game" style="display: none;">
             <p id = "scritta"> </p>
             <p id = "counter"> </p>
             <p id = "timer"> </p>
+        </div>
+
+        <div id="answer" style="display: none;">
+            <p>
+
+            </p>
+            <p>
+                <button id="answer1" type="button" name="button">domanda 1</button><br>
+                <button id="answer2" name="button">domanda 2</button><br>
+                <button id="answer3" name="button">domanda 3</button><br>
+                <button id="answer4" name="button">domanda 4</button><br>
+            </p>
         </div>
 
         <script>
 
         var socket;
 
-        let menu = document.createElement("div");
-        menu.innerHTML = '';
+        var nQuestion = 1;
 
         socket = io();
 
@@ -41,15 +52,28 @@
 
         }
 
+        function set_content_with_id(id, content) {
+            document.getElementById(id).innerHTML = content;
+        }
+
         function show_menu() {
 
             document.getElementById("menu").style.display = "block";
             document.getElementById("game").style.display = "none";
+            document.getElementById("answer").style.display = "none";
         }
 
         function show_game() {
             document.getElementById("menu").style.display = "none";
             document.getElementById("game").style.display = "block";
+            document.getElementById("answer").style.display = "none";
+        }
+
+
+        function show_answer() {
+            document.getElementById("menu").style.display = "none";
+            document.getElementById("game").style.display = "none";
+            document.getElementById("answer").style.display = "block";
         }
 
         function join_room() {
@@ -66,7 +90,7 @@
         }
 
         function players_counter(counter) {
-            document.getElementById("counter").innerHTML = "Numero di giocatori: " + counter;
+            document.getElementById("counter").innerHTML = "" + counter;
         }
 
         function preparation_time(timer) {
@@ -76,25 +100,35 @@
         socket.on("Room joined", function(data) {
 
             join_room();
-            players_counter(data.counter);
+            players_counter(data.counter + "/" + data.max_player);
 
         });
 
         socket.on("Room created", function(data) {
 
             new_room(data.code);
-            players_counter(1);
+            players_counter(1 + "/" + data.max_player);
         });
 
 
         socket.on("Players counter", function(data) {
-            players_counter(data.counter);
-        })
+            players_counter(data.counter + "/" + data.max_player);
+        });
 
         socket.on("Preparation time", function(data) {
-            console.log("ciao");
+            console.log(data.timer);
             preparation_time(data.timer);
-        })
+        });
+
+        socket.on("Send question " + nQuestion, function(data) {
+
+            set_content_with_id("answer1", data.answer1);
+            set_content_with_id("answer2", data.answer2);
+            set_content_with_id("answer3", data.answer3);
+            set_content_with_id("answer4", data.answer4);
+
+            show_answer();
+        });
 
 
         show_menu();

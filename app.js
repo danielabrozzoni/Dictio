@@ -20,7 +20,7 @@ io.sockets.on('connection', function(socket){
 
         console.log('Client create new room...')
         r = new Room();
-        r.handlePreparationTime(socket);
+        r.handlePreparationTime();
         player = new Player(socket, "Dany");
         r.join(player);
 
@@ -29,7 +29,8 @@ io.sockets.on('connection', function(socket){
         socket.join(r.code);
 
         socket.emit("Room created", {
-            code : r.code
+            code : r.code,
+            max_player: r.MAX_NUMBER_PLAYER
         });
     });
 
@@ -50,7 +51,8 @@ io.sockets.on('connection', function(socket){
                     socket.join(rooms[r].code);
 
                     var counter =  {
-                        counter : rooms[r].players.length
+                        counter : rooms[r].players.length,
+                        max_player: rooms[r].MAX_NUMBER_PLAYER
                     }
 
                     socket.emit("Room joined", counter);
@@ -81,20 +83,37 @@ function Player(socket, nick) {
 
 function Room() {
 
+
     this.MAX_NUMBER_PLAYER = 5;
-    this.PREPARATION_TIME = 60*1000;
+    this.PREPARATION_TIME = 30*1000;
 
     this.players = [];
     this.code = createCode();
     this.timer = this.PREPARATION_TIME;
 
-    this.handlePreparationTime = function (socket) {
+    this.actualQuestion = 1;
 
-        this.set = setInterval(() => {
+    this.handlePreparationTime = function () {
+
+        this.set = this.interval = setInterval(() => {
             console.log(this.timer);
             this.timer -= 1000;
+
+            if(this.timer <= 0){
+
+                io.sockets.to(this.code).emit("Send question " + this.actualQuestion, {
+                    answer1: "ciao",
+                    answer2: "bella raga",
+                    answer3: "fanculo",
+                    answer4: "ciaoneeeee",
+                });
+
+                clearInterval(this.interval);
+
+            }
+
             io.sockets.to(this.code).emit("Preparation time", {
-                timer : this.timer
+                timer: this.timer
             });
         }, 1000);
     }
