@@ -20,7 +20,7 @@ io.sockets.on('connection', function(socket){
 
         console.log('Client create new room...')
         r = new Room();
-        r.handlePreparationTime();
+        r.handlePreparationTime(socket);
         player = new Player(socket, "Dany");
         r.join(player);
 
@@ -62,7 +62,7 @@ io.sockets.on('connection', function(socket){
                 }
 
                 return;
-            } 
+            }
         }
 
         console.log("Room doesn't exist");
@@ -88,15 +88,15 @@ function Room() {
     this.code = createCode();
     this.timer = this.PREPARATION_TIME;
 
-    this.handlePreparationTime = function () {
-        setInterval(function() {
+    this.handlePreparationTime = function (socket) {
+
+        this.set = setInterval(() => {
+            console.log(this.timer);
             this.timer -= 1000;
-            this.players[0].socket.to(code).emit("Preparation time", {
+            io.sockets.to(this.code).emit("Preparation time", {
                 timer : this.timer
             });
-        
-
-        }, 1000);        
+        }, 1000);
     }
 
     this.isFull = function () {

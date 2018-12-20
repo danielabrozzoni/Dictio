@@ -11,7 +11,7 @@
             <button onClick="createRoom()"> NEW GAME</button>
         </div>
 
-        <div id="game" style="display: none"> 
+        <div id="game" style="display: none">
             <p id = "scritta"> </p>
             <p id = "counter"> </p>
             <p id = "timer"> </p>
@@ -30,7 +30,7 @@
 
             socket.emit('New room');
 
-            show_room();
+            //show_room();
         }
 
         var joinRoom = function(_code) {
@@ -61,7 +61,7 @@
         function new_room(code) {
 
             show_game();
-            document.getElementById("scritta").innerHTML = 
+            document.getElementById("scritta").innerHTML =
                                     "Questa è una nuova stanza! Codice:" + code;
         }
 
@@ -92,6 +92,7 @@
         })
 
         socket.on("Preparation time", function(data) {
+            console.log("ciao");
             preparation_time(data.timer);
         })
 
