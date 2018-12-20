@@ -20,6 +20,7 @@ io.sockets.on('connection', function(socket){
 
         console.log('Client create new room...')
         r = new Room();
+        r.handlePreparationTime();
         player = new Player(socket, "Dany");
         r.join(player);
 
@@ -27,7 +28,9 @@ io.sockets.on('connection', function(socket){
         console.log(rooms);
         socket.join(r.code);
 
-        socket.emit("Room created");
+        socket.emit("Room created", {
+            code : r.code
+        });
     });
 
     socket.on('Join room', function(code) {
@@ -46,19 +49,23 @@ io.sockets.on('connection', function(socket){
                     console.log(rooms[r]);
                     socket.join(rooms[r].code);
 
-                    socket.emit("Room created");
+                    var counter =  {
+                        counter : rooms[r].players.length
+                    }
+
+                    socket.emit("Room joined", counter);
+                    socket.to(rooms[r].code).emit("Players counter", counter);
 
                 } else {
 
                     console.log("Room is full!");
                 }
 
-                break;
-            } else {
-
-                console.log("Room doesn't exist");
-            }
+                return;
+            } 
         }
+
+        console.log("Room doesn't exist");
     });
 
 });
@@ -74,9 +81,23 @@ function Player(socket, nick) {
 
 function Room() {
 
+    this.MAX_NUMBER_PLAYER = 5;
+    this.PREPARATION_TIME = 60*1000;
+
     this.players = [];
     this.code = createCode();
-    this.MAX_NUMBER_PLAYER = 2;
+    this.timer = this.PREPARATION_TIME;
+
+    this.handlePreparationTime = function () {
+        setInterval(function() {
+            this.timer -= 1000;
+            this.players[0].socket.to(code).emit("Preparation time", {
+                timer : this.timer
+            });
+        
+
+        }, 1000);        
+    }
 
     this.isFull = function () {
 

@@ -4,12 +4,25 @@
     </head>
     <body>
 
+        <div id="menu">
+            <input type = "text" id = "code">
+            <button onClick="joinRoom(document.getElementById('code').value)"> JOIN GAME </button>
+        <br>
+            <button onClick="createRoom()"> NEW GAME</button>
+        </div>
+
+        <div id="game" style="display: none"> 
+            <p id = "scritta"> </p>
+            <p id = "counter"> </p>
+            <p id = "timer"> </p>
+        </div>
+
         <script>
 
         var socket;
 
         let menu = document.createElement("div");
-        menu.innerHTML = '<div id="menu"><input type = "text" id = "code"></div><div><button onClick="joinRoom(document.getElementById(\'code\').value)"> JOIN GAME </button></div><div><button onClick="createRoom()"> NEW GAME</button></div>';
+        menu.innerHTML = '';
 
         socket = io();
 
@@ -26,28 +39,61 @@
                 code : _code
             });
 
-            show_room();
         }
 
         function show_menu() {
 
-            document.body.innerHTML = "";
-
-            document.body.appendChild(menu);
+            document.getElementById("menu").style.display = "block";
+            document.getElementById("game").style.display = "none";
         }
 
-        function show_room() {
-
-            document.body.innerHTML = "";
-
-            document.write("Questa è una stanza!");
+        function show_game() {
+            document.getElementById("menu").style.display = "none";
+            document.getElementById("game").style.display = "block";
         }
 
-        socket.on("Room created", function() {
+        function join_room() {
 
-            show_room();
+            show_game();
+            document.getElementById("scritta").innerHTML = "Questa è una stanza!";
+        }
+
+        function new_room(code) {
+
+            show_game();
+            document.getElementById("scritta").innerHTML = 
+                                    "Questa è una nuova stanza! Codice:" + code;
+        }
+
+        function players_counter(counter) {
+            document.getElementById("counter").innerHTML = "Numero di giocatori: " + counter;
+        }
+
+        function preparation_time(timer) {
+            document.getElementById("timer").innerHTML = "Timer: " + timer;
+        }
+
+        socket.on("Room joined", function(data) {
+
+            join_room();
+            players_counter(data.counter);
+
         });
 
+        socket.on("Room created", function(data) {
+
+            new_room(data.code);
+            players_counter(1);
+        });
+
+
+        socket.on("Players counter", function(data) {
+            players_counter(data.counter);
+        })
+
+        socket.on("Preparation time", function(data) {
+            preparation_time(data.timer);
+        })
 
 
         show_menu();
