@@ -1,8 +1,28 @@
+
+//// ########## DICTIONARY ########## ////
+
+var Dictionary = require("oxford-dictionary");
+
+var config = {
+    app_id : "9a365978",
+    app_key : "736a8b1c5fb3546b9cd1cd35e32a09f5",
+    source_lang : "en"
+};
+
+var dict = new Dictionary(config);
+
+//// ########## RANDOM WORDS ########## ////
+
+var randomWords = require('random-words');
+
+//// ########## SERVER ########## ////
+
 var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
 
 var rooms = [];
+
 
 app.get('/',function(req, res) {
     res.sendFile(__dirname + '/client/index.html');
@@ -16,12 +36,16 @@ console.log("Server started.");
 var io = require('socket.io')(serv);
 io.sockets.on('connection', function(socket){
 
+    var player = new Player(socket, "Dany");
+    var r;
+
     socket.on('New room', function() {
+
+        console.log(socket);
 
         console.log('Client create new room...')
         r = new Room();
         r.handlePreparationTime();
-        player = new Player(socket, "Dany");
         r.join(player);
 
         rooms.push(r);
@@ -36,8 +60,6 @@ io.sockets.on('connection', function(socket){
 
     socket.on('Join room', function(code) {
         console.log('Client join in room with code ' + code.code + '...');
-
-        var player = new Player(socket, "Mokka");
 
         for(r in rooms) {
 
@@ -70,8 +92,46 @@ io.sockets.on('connection', function(socket){
         console.log("Room doesn't exist");
     });
 
+    socket.on("Receive question",function(data){
+        console.log("Answer: " + data.nActualAnswer + " - Question: " + data.nActualQuestion);
+
+        // cerco il socket tra i vari giocatori delle stanze
+        let found = false;
+        for(r in rooms) {
+
+            if(found == true)
+                break;
+
+            for(p in rooms[r].players){
+
+                let player = rooms[r].players[p];
+                if(player.socket == socket) {
+
+                    if(rooms[r].actualQuestion != data.nActualQuestion){
+
+                        player.question[data.nActualQuestion] = -1;
+                    } else {
+
+                        player.question[data.nActualQuestion] = data.nActualAnswer;
+                    }
+
+                    if(rooms[r].allPlayerAnswered() == true) {
+                        io.sockets.to(rooms[r].code).emit("ciao");
+                    }
+
+                    break;
+                }
+            }
+        }
+
+    });
 });
 
+function prova() {
+
+    io.sockets.to(rooms[r].code).emit("ciao");
+
+}
 
 // Player CLASS
 function Player(socket, nick) {
@@ -79,19 +139,33 @@ function Player(socket, nick) {
     this.socket = socket; // forse togliere
     this.score = 0;
     this.nick = nick;
+
+    this.question = [];
 }
 
 function Room() {
 
-
     this.MAX_NUMBER_PLAYER = 5;
-    this.PREPARATION_TIME = 30*1000;
+    this.PREPARATION_TIME = 20*1000;
 
     this.players = [];
     this.code = createCode();
     this.timer = this.PREPARATION_TIME;
 
     this.actualQuestion = 1;
+
+    this.allPlayerAnswered = function () {
+
+        for(p in this.players) {
+            let player = this.players[p];
+
+            if(player.question[this.actualQuestion] == null) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     this.handlePreparationTime = function () {
 
@@ -101,15 +175,35 @@ function Room() {
 
             if(this.timer <= 0){
 
-                io.sockets.to(this.code).emit("Send question " + this.actualQuestion, {
-                    answer1: "ciao",
-                    answer2: "bella raga",
-                    answer3: "fanculo",
-                    answer4: "ciaoneeeee",
+                // genero 4 parole randomiche
+                var randomWord = randomWords(4);
+
+                // stampo temporaneamente le parole sul server
+                for(s in randomWord){
+                    console.log(randomWord[s]);
+                }
+
+                // cerco il significato della prima
+                var lookup = dict.definitions(randomWord[0]);
+
+                this.set = lookup.then((res) => {
+
+                    let question = res.results[0].lexicalEntries[0].entries[0].senses[0].definitions[0];
+                    console.log(question);
+
+                    // invio tutto quando è stato ricevuto il significato della parola
+                    io.sockets.to(this.code).emit("Send question " + this.actualQuestion, {
+                       question: question,
+                       answers: randomWord
+                    });
+
+                },
+                function(err) {
+                    // err contains any failed responses to handle as desired
+                    console.log(err);
                 });
 
                 clearInterval(this.interval);
-
             }
 
             io.sockets.to(this.code).emit("Preparation time", {

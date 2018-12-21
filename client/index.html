@@ -18,14 +18,14 @@
         </div>
 
         <div id="answer" style="display: none;">
-            <p>
+            <p id="question">
 
             </p>
             <p>
-                <button id="answer1" type="button" name="button">domanda 1</button><br>
-                <button id="answer2" name="button">domanda 2</button><br>
-                <button id="answer3" name="button">domanda 3</button><br>
-                <button id="answer4" name="button">domanda 4</button><br>
+                <button id="answer1" onclick="answerChosed(1)">domanda 1</button><br>
+                <button id="answer2" onclick="answerChosed(2)">domanda 2</button><br>
+                <button id="answer3" onclick="answerChosed(3)">domanda 3</button><br>
+                <button id="answer4" onclick="answerChosed(4)">domanda 4</button><br>
             </p>
         </div>
 
@@ -122,13 +122,33 @@
 
         socket.on("Send question " + nQuestion, function(data) {
 
-            set_content_with_id("answer1", data.answer1);
-            set_content_with_id("answer2", data.answer2);
-            set_content_with_id("answer3", data.answer3);
-            set_content_with_id("answer4", data.answer4);
+            set_content_with_id("question", data.question);
+
+            set_content_with_id("answer1", data.answers[0]);
+            set_content_with_id("answer2", data.answers[1]);
+            set_content_with_id("answer3", data.answers[2]);
+            set_content_with_id("answer4", data.answers[3]);
 
             show_answer();
         });
+
+        socket.on("ciao", function () {
+            alert("tutti hanno risposto");
+        });
+
+        function answerChosed(nAnswer){
+
+            if(nAnswer < 0 || nAnswer > 4) {
+                return;
+            }
+
+            console.log("Sending answer to server...");
+
+            socket.emit("Receive question", {
+                nActualQuestion: nQuestion,
+                nActualAnswer: nAnswer
+            });
+        }
 
 
         show_menu();
