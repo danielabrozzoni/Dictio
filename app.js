@@ -41,15 +41,12 @@ io.sockets.on('connection', function(socket){
 
     socket.on('New room', function() {
 
-        console.log(socket);
-
         console.log('Client create new room...')
         r = new Room();
         r.handlePreparationTime();
         r.join(player);
 
         rooms.push(r);
-        console.log(rooms);
         socket.join(r.code);
 
         socket.emit("Room created", {
@@ -59,11 +56,10 @@ io.sockets.on('connection', function(socket){
     });
 
     socket.on('Join room', function(code) {
-        console.log('Client join in room with code ' + code.code + '...');
+
+        //console.log('Client join in room with code ' + code.code + '...');
 
         for(r in rooms) {
-
-            console.log(code + " " + rooms[r].code);
 
             if(code.code == rooms[r].code) {
 
@@ -83,13 +79,21 @@ io.sockets.on('connection', function(socket){
                 } else {
 
                     console.log("Room is full!");
+
+                    socket.emit("Room joining error", {
+                        error: "Room is full"
+                    });
                 }
 
                 return;
             }
         }
 
-        console.log("Room doesn't exist");
+
+        socket.emit("Room joining error", {
+            error: "Room doesn't exist"
+        });
+
     });
 
     socket.on("Receive question",function(data){
@@ -115,7 +119,10 @@ io.sockets.on('connection', function(socket){
                         player.question[data.nActualQuestion] = data.nActualAnswer;
                     }
 
+                    // se tutti i client hanno inviato la risposta
                     if(rooms[r].allPlayerAnswered() == true) {
+                        // invio la risposta corretta
+                        // DA FAREEEE
                         io.sockets.to(rooms[r].code).emit("ciao");
                     }
 
@@ -126,12 +133,6 @@ io.sockets.on('connection', function(socket){
 
     });
 });
-
-function prova() {
-
-    io.sockets.to(rooms[r].code).emit("ciao");
-
-}
 
 // Player CLASS
 function Player(socket, nick) {
@@ -145,7 +146,7 @@ function Player(socket, nick) {
 
 function Room() {
 
-    this.MAX_NUMBER_PLAYER = 5;
+    this.MAX_NUMBER_PLAYER = 2;
     this.PREPARATION_TIME = 20*1000;
 
     this.players = [];

@@ -1,14 +1,147 @@
 <html>
     <head>
         <script src="/socket.io/socket.io.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Signika" rel="stylesheet">
+        <style>
+
+        body{
+            background-color: #272933;
+            font-family: 'Signika', sans-serif;
+            font-weight: lighter;
+        }
+
+        #menu {
+        }
+
+        #menu_content {
+            text-align: center;
+            position: fixed;
+
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        input {
+            background-color: #fff;
+            border-radius: 5px;
+            width: 200px;
+            height: 30px;
+            padding: 5px;
+            border: 0;
+            border-bottom: 2.5px solid #8f9194;
+            outline:none;
+
+            font-family: 'Signika', sans-serif;
+            font-family: Verdana;
+            font-size: 12px;
+        }
+
+        button {
+            background-color: #1fbba6;
+            border-radius: 5px;
+            width: 200px;
+            height: 30px;
+            padding: 5px;
+            border: 0;
+            border-bottom: 3.5px solid #1c9386;
+
+            outline: none;
+
+            color: white;
+
+            font-family: 'Signika', sans-serif;
+                font-weight: bold;
+            font-size: 12px;
+        }
+
+        button:active {
+            height: 28;
+            margin-top: 2px;
+            border-bottom: 2px solid #1c9386;
+        }
+
+        #menu, #game, #answer{
+
+            text-align: center;
+            background-color: #191a21;
+            width: 500px;
+            height: 310px;
+
+            color: white;
+
+            position: fixed;
+
+            border-radius: 15px;
+            border-bottom: 3px solid #0f1014;
+
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #input_code_game {
+
+            margin-bottom: 3px;
+        }
+
+        #create_room_button {
+            background-color: #bb981f;
+            border-bottom: 3.5px solid #93641c;
+        }
+
+        #title {
+            width: 300px;
+            /*margin-top: 10px;*/
+            font-family: 'Signika', sans-serif;
+        }
+
+        #separation_line {
+            color: black;
+            display: block;
+            height: 1px;
+            border: 0;
+            border-top: 0px;
+            margin: 1em 0;
+            padding: 0;
+        }
+
+        #error {
+            font-size: 13px;
+            margin-bottom: 10px;
+            padding: 5px;
+            margin-left: 50px;
+            text-align: center;
+            width: 190px;
+            display: none;
+
+            background-color: #be4b49;
+            border-top: 3px solid rgb(139, 3, 0);
+            border-radius: 5px;
+        }
+        </style>
     </head>
     <body>
 
         <div id="menu">
-            <input type = "text" id = "code">
-            <button onClick="joinRoom(document.getElementById('code').value)"> JOIN GAME </button>
-        <br>
-            <button onClick="createRoom()"> NEW GAME</button>
+            <div id="menu_content">
+                <div id="title">
+                    <h1>NOME DEL GIOCO</h1>
+                </div>
+                <div id="error"></div>
+                <div>
+                    <div id="input_code_game">
+                        <input type = "text" id = "code" placeholder="Insert room code...">
+                    </div>
+                    <div>
+                        <button onClick="joinRoom(document.getElementById('code').value)"> JOIN GAME </button>
+                    </div>
+                </div>
+                <hr id="separation_line">
+                <p>
+                    <button id="create_room_button" onClick="createRoom()"> NEW GAME</button>
+                </p>
+            </div>
         </div>
 
         <div id="game" style="display: none;">
@@ -136,6 +269,11 @@
             alert("tutti hanno risposto");
         });
 
+        socket.on("Room joining error", function(data) {
+            document.getElementById("error").style.display = "block";
+            set_content_with_id("error", data.error);
+        });
+
         function answerChosed(nAnswer){
 
             if(nAnswer < 0 || nAnswer > 4) {
@@ -149,7 +287,6 @@
                 nActualAnswer: nAnswer
             });
         }
-
 
         show_menu();
         </script>
