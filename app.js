@@ -34,7 +34,39 @@ serv.listen(2000);
 console.log("Server started.");
 
 var io = require('socket.io')(serv);
+
 io.sockets.on('connection', function(socket){
+
+    socket.on('disconnect', function(){
+
+        for(r in rooms) {
+
+            for(p in rooms[r].players) {
+
+                // elimino il socket dalla stanza
+                if(socket == rooms[r].players[p].socket) {
+
+                    console.log("Client leaves room...");
+
+                    rooms[r].players.splice(p, 1);
+
+                    io.sockets.to(rooms[r].code).emit("Players counter", rooms[r].getInfoRoom());
+                    break;
+                }
+            }
+
+            // se l'array dei giocatori della stanza è vuoto allora cancello la stanza
+            if(rooms[r].players.length == 0) {
+
+                console.log("Delete room...");
+
+                rooms[r].closeRoom();
+                rooms.splice(r, 1);
+
+                break;
+            }
+        }
+    });
 
     var player = new Player(socket, "Dany");
     var r;
@@ -49,10 +81,7 @@ io.sockets.on('connection', function(socket){
         rooms.push(r);
         socket.join(r.code);
 
-        socket.emit("Room created", {
-            code : r.code,
-            max_player: r.MAX_NUMBER_PLAYER
-        });
+        socket.emit("Room created", r.getInfoRoom());
     });
 
     socket.on('Join room', function(code) {
@@ -65,16 +94,12 @@ io.sockets.on('connection', function(socket){
 
                 if(rooms[r].join(player)) {
 
-                    console.log(rooms[r]);
                     socket.join(rooms[r].code);
 
-                    var counter =  {
-                        counter : rooms[r].players.length,
-                        max_player: rooms[r].MAX_NUMBER_PLAYER
-                    }
+                    //console.log(rooms[r].getInfoRoom());
 
-                    socket.emit("Room joined", counter);
-                    socket.to(rooms[r].code).emit("Players counter", counter);
+                    socket.emit("Room joined", rooms[r].getInfoRoom());
+                    io.sockets.to(rooms[r].code).emit("Players counter", rooms[r].getInfoRoom());
 
                 } else {
 
@@ -97,7 +122,6 @@ io.sockets.on('connection', function(socket){
     });
 
     socket.on("Receive question",function(data){
-        console.log("Answer: " + data.nActualAnswer + " - Question: " + data.nActualQuestion);
 
         // cerco il socket tra i vari giocatori delle stanze
         let found = false;
@@ -171,7 +195,7 @@ function Room() {
     this.handlePreparationTime = function () {
 
         this.set = this.interval = setInterval(() => {
-            console.log(this.timer);
+
             this.timer -= 1000;
 
             if(this.timer <= 0){
@@ -180,9 +204,9 @@ function Room() {
                 var randomWord = randomWords(4);
 
                 // stampo temporaneamente le parole sul server
-                for(s in randomWord){
+                /*for(s in randomWord){
                     console.log(randomWord[s]);
-                }
+                }*/
 
                 // cerco il significato della prima
                 var lookup = dict.definitions(randomWord[0]);
@@ -190,7 +214,6 @@ function Room() {
                 this.set = lookup.then((res) => {
 
                     let question = res.results[0].lexicalEntries[0].entries[0].senses[0].definitions[0];
-                    console.log(question);
 
                     // invio tutto quando è stato ricevuto il significato della parola
                     io.sockets.to(this.code).emit("Send question " + this.actualQuestion, {
@@ -228,6 +251,24 @@ function Room() {
         }
 
         return false;
+    }
+
+    this.closeRoom = function() {
+
+        clearInterval(this.interval);
+    }
+
+    this.getInfoRoom = function() {
+
+        let info = {
+            code: this.code,
+            max_player: this.MAX_NUMBER_PLAYER,
+            counter: this.players.length,
+            question: this.actualQuestion,
+            timer: this.timer
+        };
+
+        return info;
     }
 }
 

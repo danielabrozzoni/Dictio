@@ -119,6 +119,53 @@
             border-top: 3px solid rgb(139, 3, 0);
             border-radius: 5px;
         }
+
+        #timer_bar {
+            position: absolute;
+
+            width: 500px;
+            height: 5px;
+
+            background-color: yellow;
+
+            border-bottom-left-radius: 5px;
+            bottom: 0;
+        }
+
+        #code_room {
+
+            font-size: 60px;
+
+            top: 50%;
+            position: absolute;
+            transform: translate(-50%,-50%);
+            left: 50%;
+
+            text-shadow: 0px 3px #737474;
+        }
+
+        #counter {
+
+            position: absolute;
+            bottom: 10;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #timer {
+
+            position: absolute;
+            bottom: 0;
+
+            left: 50%;
+
+            transform: translateX(-50%);
+        }
+
+        #scritta {
+            position: relative;
+            top: 32%;
+        }
         </style>
     </head>
     <body>
@@ -145,9 +192,11 @@
         </div>
 
         <div id="game" style="display: none;">
-            <p id = "scritta"> </p>
+            <div id="scritta">Code room</div>
+            <div id="code_room"> </div>
             <p id = "counter"> </p>
-            <p id = "timer"> </p>
+            <div id = "timer"> </div>
+            <div id="timer_bar"></div>
         </div>
 
         <div id="answer" style="display: none;">
@@ -211,15 +260,11 @@
 
         function join_room() {
 
-            show_game();
-            document.getElementById("scritta").innerHTML = "Questa è una stanza!";
         }
 
         function new_room(code) {
 
-            show_game();
-            document.getElementById("scritta").innerHTML =
-                                    "Questa è una nuova stanza! Codice:" + code;
+            document.getElementById("code").innerHTML = code;
         }
 
         function players_counter(counter) {
@@ -227,20 +272,22 @@
         }
 
         function preparation_time(timer) {
-            document.getElementById("timer").innerHTML = "Timer: " + timer;
+            document.getElementById("timer").innerHTML = timer + "s";
         }
 
         socket.on("Room joined", function(data) {
+            show_game();
 
-            join_room();
             players_counter(data.counter + "/" + data.max_player);
-
         });
 
         socket.on("Room created", function(data) {
 
-            new_room(data.code);
+            set_content_with_id("code_room", data.code);
+
             players_counter(1 + "/" + data.max_player);
+
+            show_game();
         });
 
 
@@ -249,8 +296,10 @@
         });
 
         socket.on("Preparation time", function(data) {
-            console.log(data.timer);
-            preparation_time(data.timer);
+
+            preparation_time(data.timer/1000);
+
+            document.getElementById("timer_bar").style.width = ((data.timer/1000)*500) / 20;
         });
 
         socket.on("Send question " + nQuestion, function(data) {
