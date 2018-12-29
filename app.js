@@ -137,17 +137,23 @@ io.sockets.on('connection', function(socket){
 
                     if(rooms[r].actualQuestion != data.nActualQuestion){
 
-                        player.question[data.nActualQuestion] = -1;
+                        player.answer[data.nActualQuestion] = -1;
                     } else {
 
-                        player.question[data.nActualQuestion] = data.nActualAnswer;
+                        player.answer[data.nActualQuestion] = data.nActualAnswer;
+                        console.log(player.answer[data.nActualQuestion]);
                     }
 
                     // se tutti i client hanno inviato la risposta
                     if(rooms[r].allPlayerAnswered() == true) {
                         // invio la risposta corretta
                         // DA FAREEEE
-                        io.sockets.to(rooms[r].code).emit("ciao");
+                        io.sockets.to(rooms[r].code).emit("All players answered", {
+                            correctAnswer: rooms[r].questions[rooms[r].actualQuestion].correctAnswer
+                        });
+
+                        rooms[r].timer = 3*1000;
+                        rooms[r].handlePreparationTime();
                     }
 
                     break;
@@ -165,26 +171,35 @@ function Player(socket, nick) {
     this.score = 0;
     this.nick = nick;
 
-    this.question = [];
+    this.answer = [];
+}
+
+function Question(question, answer, correctAnswer) {
+    this.question = question;
+    this.answer = answer;
+
+    this.correctAnswer = correctAnswer;
 }
 
 function Room() {
 
     this.MAX_NUMBER_PLAYER = 2;
-    this.PREPARATION_TIME = 20*1000;
+    this.PREPARATION_TIME = 10*1000;
 
     this.players = [];
     this.code = createCode();
     this.timer = this.PREPARATION_TIME;
 
-    this.actualQuestion = 1;
+    this.actualQuestion = -1;
+
+    this.questions = [];
 
     this.allPlayerAnswered = function () {
 
         for(p in this.players) {
             let player = this.players[p];
 
-            if(player.question[this.actualQuestion] == null) {
+            if(player.answer[this.actualQuestion] == null) {
                 return false;
             }
         }
@@ -193,6 +208,8 @@ function Room() {
     }
 
     this.handlePreparationTime = function () {
+
+        this.actualQuestion++;
 
         this.set = this.interval = setInterval(() => {
 
@@ -209,16 +226,24 @@ function Room() {
                 }*/
 
                 // cerco il significato della prima
-                var lookup = dict.definitions(randomWord[0]);
+
+                var random_number = Math.floor(Math.random()*3);
+                var lookup = dict.definitions(randomWord[random_number]);
+
 
                 this.set = lookup.then((res) => {
 
                     let question = res.results[0].lexicalEntries[0].entries[0].senses[0].definitions[0];
 
+                    question = capitalizeFirstLetter(question);
+
+                    this.questions[this.actualQuestion] = new Question(question, randomWord, random_number);
                     // invio tutto quando è stato ricevuto il significato della parola
-                    io.sockets.to(this.code).emit("Send question " + this.actualQuestion, {
-                       question: question,
-                       answers: randomWord
+                    console.log(this.questions);
+                    io.sockets.to(this.code).emit("Send question", {
+                        nQuestion: this.actualQuestion,
+                        question: question,
+                        answers: randomWord
                     });
 
                 },
@@ -229,10 +254,18 @@ function Room() {
 
                 clearInterval(this.interval);
             }
+            if(this.actualQuestion == 0) {
 
-            io.sockets.to(this.code).emit("Preparation time", {
-                timer: this.timer
-            });
+                io.sockets.to(this.code).emit("Preparation time", {
+                    timer: this.timer
+                });
+
+            } else {
+
+                io.sockets.to(this.code).emit("Answer time", {
+                    timer: this.timer
+                });
+            }
         }, 1000);
     }
 
@@ -281,4 +314,8 @@ function createCode() {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
     return text;
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }

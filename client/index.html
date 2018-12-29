@@ -3,17 +3,14 @@
         <script src="/socket.io/socket.io.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Signika" rel="stylesheet">
         <style>
-
+        /*
         body{
             background-color: #272933;
             font-family: 'Signika', sans-serif;
             font-weight: lighter;
         }
 
-        #menu {
-        }
-
-        #menu_content {
+        #menu_content, #answer_content {
             text-align: center;
             position: fixed;
 
@@ -58,7 +55,7 @@
         button:active {
             height: 28;
             margin-top: 2px;
-            border-bottom: 2px solid #1c9386;
+            border-bottom: 2px solid #b0b2b3;
         }
 
         #menu, #game, #answer{
@@ -92,7 +89,6 @@
 
         #title {
             width: 300px;
-            /*margin-top: 10px;*/
             font-family: 'Signika', sans-serif;
         }
 
@@ -122,14 +118,14 @@
 
         #timer_bar {
             position: absolute;
-
             width: 500px;
-            height: 5px;
-
             background-color: yellow;
-
-            border-bottom-left-radius: 5px;
+            border-bottom-left-radius: 10px;
             bottom: 0;
+            height: 50px;
+
+            background-color: #ffffff00;
+            border-bottom: 5px solid yellow;
         }
 
         #code_room {
@@ -166,6 +162,27 @@
             position: relative;
             top: 32%;
         }
+
+        .answer {
+            text-align: center;
+
+            color: black;
+
+            background-color: white;
+            border-bottom: 3px solid #b0b2b3;
+            padding: 5px;
+            margin-bottom: 5px;
+        }
+
+        #question {
+
+            width: 400px;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+
+            padding: 15px;
+        }*/
         </style>
     </head>
     <body>
@@ -173,7 +190,7 @@
         <div id="menu">
             <div id="menu_content">
                 <div id="title">
-                    <h1>NOME DEL GIOCO</h1>
+                    <h1>DICTIO GAME</h1>
                 </div>
                 <div id="error"></div>
                 <div>
@@ -185,9 +202,9 @@
                     </div>
                 </div>
                 <hr id="separation_line">
-                <p>
+                <div>
                     <button id="create_room_button" onClick="createRoom()"> NEW GAME</button>
-                </p>
+                </div>
             </div>
         </div>
 
@@ -195,27 +212,29 @@
             <div id="scritta">Code room</div>
             <div id="code_room"> </div>
             <p id = "counter"> </p>
-            <div id = "timer"> </div>
+            <div id="timer"> </div>
             <div id="timer_bar"></div>
         </div>
 
         <div id="answer" style="display: none;">
-            <p id="question">
-
-            </p>
-            <p>
-                <button id="answer1" onclick="answerChosed(1)">domanda 1</button><br>
-                <button id="answer2" onclick="answerChosed(2)">domanda 2</button><br>
-                <button id="answer3" onclick="answerChosed(3)">domanda 3</button><br>
-                <button id="answer4" onclick="answerChosed(4)">domanda 4</button><br>
-            </p>
+            <div id="answer_content">
+                <div id="question"></div>
+                <div>
+                    <button class="answer" id="answer0" onclick="answerChosed(0)">domanda 1</button><br>
+                    <button class="answer" id="answer1" onclick="answerChosed(1)">domanda 2</button><br>
+                    <button class="answer" id="answer2" onclick="answerChosed(2)">domanda 3</button><br>
+                    <button class="answer" id="answer3" onclick="answerChosed(3)">domanda 4</button><br>
+                </div>
+                <div id="correct_answer"></div>
+                <div id="answer_timer"></div>
+            </div>
         </div>
 
         <script>
 
         var socket;
 
-        var nQuestion = 1;
+        var nQuestion = 0;
 
         socket = io();
 
@@ -299,23 +318,39 @@
 
             preparation_time(data.timer/1000);
 
-            document.getElementById("timer_bar").style.width = ((data.timer/1000)*500) / 20;
+            document.getElementById("timer_bar").style.width = ((data.timer/1000)*500) / 10;
         });
 
-        socket.on("Send question " + nQuestion, function(data) {
+        socket.on("Send question", function(data) {
 
-            set_content_with_id("question", data.question);
+            if(data.nQuestion == nQuestion) {
 
-            set_content_with_id("answer1", data.answers[0]);
-            set_content_with_id("answer2", data.answers[1]);
-            set_content_with_id("answer3", data.answers[2]);
-            set_content_with_id("answer4", data.answers[3]);
+                console.log("Send question " + nQuestion);
+                set_content_with_id("question", data.question);
 
-            show_answer();
+                set_content_with_id("answer0", data.answers[0]);
+                set_content_with_id("answer1", data.answers[1]);
+                set_content_with_id("answer2", data.answers[2]);
+                set_content_with_id("answer3", data.answers[3]);
+
+                show_answer();
+            }
         });
 
-        socket.on("ciao", function () {
-            alert("tutti hanno risposto");
+        socket.on("All players answered", function (data) {
+            //alert("tutti hanno risposto");
+
+            document.getElementById("answer" + data.correctAnswer).style.border = "1px solid red";
+
+            set_content_with_id("correct_answer", "La risposta corretta è la n. " + data.correctAnswer);
+
+            nQuestion += 1;
+        });
+
+        socket.on("Answer time", function (data) {
+            //alert("tutti hanno risposto");
+
+            set_content_with_id("answer_timer", data.timer/1000);
         });
 
         socket.on("Room joining error", function(data) {
