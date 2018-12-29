@@ -123,6 +123,7 @@ io.sockets.on('connection', function(socket){
 
     socket.on("Receive question",function(data){
 
+
         // cerco il socket tra i vari giocatori delle stanze
         let found = false;
         for(r in rooms) {
@@ -134,26 +135,46 @@ io.sockets.on('connection', function(socket){
 
                 let player = rooms[r].players[p];
                 if(player.socket == socket) {
+                    // se il giocatore ha gia risposto alla domanda
+                    if(rooms[r].timer == 0) {
+                        console.log(rooms[r].actualQuestion);
+                        console.log("ciaone eeee ee e ");
 
-                    if(rooms[r].actualQuestion != data.nActualQuestion){
+                        // se il giocatore si trova ad una risposta differente
+                        if(rooms[r].actualQuestion != data.nActualQuestion){
 
-                        player.answer[data.nActualQuestion] = -1;
-                    } else {
+                            player.answer[rooms[r].actualQuestion] = -1;
+                        } else {
 
-                        player.answer[data.nActualQuestion] = data.nActualAnswer;
-                        console.log(player.answer[data.nActualQuestion]);
-                    }
+                            player.answer[data.nActualQuestion] = data.nActualAnswer;
+                        }
 
-                    // se tutti i client hanno inviato la risposta
-                    if(rooms[r].allPlayerAnswered() == true) {
-                        // invio la risposta corretta
-                        // DA FAREEEE
-                        io.sockets.to(rooms[r].code).emit("All players answered", {
-                            correctAnswer: rooms[r].questions[rooms[r].actualQuestion].correctAnswer
-                        });
+                        // se tutti i client hanno inviato la risposta
+                        if(rooms[r].allPlayerAnswered() == true) {
+                            // invio la risposta corretta
+                            // DA FAREEEE
 
-                        rooms[r].timer = 3*1000;
-                        rooms[r].handlePreparationTime();
+                            for(i in rooms[r].players) {
+
+                                let s = rooms[r].players[i].socket;
+                                let _flagCorrectAnswer = false;
+
+                                if(rooms[r].questions[rooms[r].actualQuestion].correctAnswer == rooms[r].players[i].answer[rooms[r].actualQuestion]) {
+                                    _flagCorrectAnswer = true;
+                                }
+
+                                s.emit("debug", {
+                                    flagCorrectAnswer: _flagCorrectAnswer
+                                });
+                            }
+
+                            io.sockets.to(rooms[r].code).emit("All players answered", {
+                                correctAnswer: rooms[r].questions[rooms[r].actualQuestion].correctAnswer
+                            });
+
+                            rooms[r].timer = 3*1000;
+                            rooms[r].handlePreparationTime();
+                        }
                     }
 
                     break;

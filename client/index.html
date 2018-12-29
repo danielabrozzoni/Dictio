@@ -227,7 +227,11 @@
                 </div>
                 <div id="correct_answer"></div>
                 <div id="answer_timer"></div>
+                <div id="user_answer"></div>
             </div>
+        </div>
+
+        <div id="users_score" style="display: none;">
         </div>
 
         <script>
@@ -262,12 +266,14 @@
             document.getElementById("menu").style.display = "block";
             document.getElementById("game").style.display = "none";
             document.getElementById("answer").style.display = "none";
+            document.getElementById("users_score").style.display = "none";
         }
 
         function show_game() {
             document.getElementById("menu").style.display = "none";
             document.getElementById("game").style.display = "block";
             document.getElementById("answer").style.display = "none";
+            document.getElementById("users_score").style.display = "none";
         }
 
 
@@ -275,6 +281,22 @@
             document.getElementById("menu").style.display = "none";
             document.getElementById("game").style.display = "none";
             document.getElementById("answer").style.display = "block";
+            document.getElementById("users_score").style.display = "none";
+        }
+
+        function show_users_score() {
+            document.getElementById("menu").style.display = "none";
+            document.getElementById("game").style.display = "none";
+            document.getElementById("answer").style.display = "none";
+            document.getElementById("users_score").style.display = "block";
+        }
+
+        function reset_answer() {
+
+            for(var i = 0; i < 4; i++) {
+                document.getElementById("answer" + i).disabled = false;
+                //document.getElementById("answer" + i).style.border = "0";
+            }
         }
 
         function join_room() {
@@ -325,6 +347,8 @@
 
             if(data.nQuestion == nQuestion) {
 
+                reset_answer();
+
                 console.log("Send question " + nQuestion);
                 set_content_with_id("question", data.question);
 
@@ -340,7 +364,9 @@
         socket.on("All players answered", function (data) {
             //alert("tutti hanno risposto");
 
-            document.getElementById("answer" + data.correctAnswer).style.border = "1px solid red";
+            //document.getElementById("answer" + data.correctAnswer).style.border = "1px solid red";
+
+            // FARE IN MODO CHE IL GIOCATORE NON INSERISCA UNA NUOVA RISPOSTA
 
             set_content_with_id("correct_answer", "La risposta corretta è la n. " + data.correctAnswer);
 
@@ -356,6 +382,12 @@
         socket.on("Room joining error", function(data) {
             document.getElementById("error").style.display = "block";
             set_content_with_id("error", data.error);
+        });
+
+        socket.on("debug", function(data){
+            console.log(data.flagCorrectAnswer);
+
+            set_content_with_id("user_answer", data.flagCorrectAnswer);
         });
 
         function answerChosed(nAnswer){
