@@ -1,3 +1,14 @@
+////////////////////////////////////////////
+/*var ReactDOM = require('react-dom');
+
+class MyComponent extends React.Component {
+  render() {
+    return <div>Hello World</div>;
+  }
+}
+
+ReactDOM.render(<MyComponent />, node);*/
+
 
 //// ########## DICTIONARY ########## ////
 
@@ -25,7 +36,7 @@ var rooms = [];
 
 
 app.get('/',function(req, res) {
-    res.sendFile(__dirname + '/client/index.html');
+    res.sendFile(__dirname + '/client/index_react.html');
 });
 app.use('/client',express.static(__dirname + '/client'));
 
