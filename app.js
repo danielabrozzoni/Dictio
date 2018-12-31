@@ -1,14 +1,3 @@
-////////////////////////////////////////////
-/*var ReactDOM = require('react-dom');
-
-class MyComponent extends React.Component {
-  render() {
-    return <div>Hello World</div>;
-  }
-}
-
-ReactDOM.render(<MyComponent />, node);*/
-
 
 //// ########## DICTIONARY ########## ////
 
@@ -36,7 +25,7 @@ var rooms = [];
 
 
 app.get('/',function(req, res) {
-    res.sendFile(__dirname + '/client/index_react.html');
+    res.sendFile(__dirname + '/client/index.html');
 });
 app.use('/client',express.static(__dirname + '/client'));
 
@@ -48,29 +37,34 @@ var io = require('socket.io')(serv);
 
 io.sockets.on('connection', function(socket){
 
+    // funzione di disconnessione del giocatore
     socket.on('disconnect', function(){
 
         for(r in rooms) {
 
             for(p in rooms[r].players) {
 
-                // elimino il socket dalla stanza
+                // se trovo il giocatore nella stanza
                 if(socket == rooms[r].players[p].socket) {
 
                     console.log("Client leaves room...");
 
+                    // elimino il socket dalla stanza
                     rooms[r].players.splice(p, 1);
 
+                    // invio le nuove informazioni sulla stanza
+                    // con il nuovo numero di giocatori
                     io.sockets.to(rooms[r].code).emit("Players counter", rooms[r].getInfoRoom());
                     break;
                 }
             }
 
-            // se l'array dei giocatori della stanza è vuoto allora cancello la stanza
+            // se l'array dei giocatori della stanza è vuoto
             if(rooms[r].players.length == 0) {
 
                 console.log("Delete room...");
 
+                // chiudo i vari interval (thread) della stanza e la cancello dal vettore
                 rooms[r].closeRoom();
                 rooms.splice(r, 1);
 
@@ -79,45 +73,65 @@ io.sockets.on('connection', function(socket){
         }
     });
 
+    // giocatore fasullo
+    // DA FARE: le informazioni del giocatore (nickname e blabla)
     var player = new Player(socket, "Dany");
+    // variabile della stanza (nel caso in cui si debba creare)
     var r;
 
+    // funzione per la creazione della stanza
     socket.on('New room', function() {
 
-        console.log('Client create new room...')
+        console.log('Client create new room...');
+        // creo la stanza
         r = new Room();
+        // avvio il contatore per far partire il gioco
         r.handlePreparationTime();
+        // inserisco il giocatore all'interno della stanza
         r.join(player);
-
-        rooms.push(r);
         socket.join(r.code);
 
+        // inserisco la stanza nel vettore
+        rooms.push(r);
+
+        // invio le informazioni al giocatore che ha creato la stanza
         socket.emit("Room created", r.getInfoRoom());
     });
 
+    // funzione per accedere alla stanza
     socket.on('Join room', function(code) {
-
-        //console.log('Client join in room with code ' + code.code + '...');
 
         for(r in rooms) {
 
+            // se il codice è uguale e la stanza non ha ancora cominciato a giocare
             if(code.code == rooms[r].code) {
 
-                if(rooms[r].join(player)) {
+                if(rooms[r].questions[0] == undefined) {
+                    // inserisco nella stanza il giocatore
+                    // se riesco (se non è piena la stanza)
+                    if(rooms[r].join(player)) {
 
-                    socket.join(rooms[r].code);
+                        socket.join(rooms[r].code);
 
-                    //console.log(rooms[r].getInfoRoom());
+                        // e gli invio la conferma dell'accesso alla stanza
+                        // e gli invio anche le informazioni riguardanti la stanza
+                        socket.emit("Room joined", rooms[r].getInfoRoom());
+                        io.sockets.to(rooms[r].code).emit("Players counter", rooms[r].getInfoRoom());
 
-                    socket.emit("Room joined", rooms[r].getInfoRoom());
-                    io.sockets.to(rooms[r].code).emit("Players counter", rooms[r].getInfoRoom());
+                    } else {
 
+                        console.log("Room is full!");
+                        // invio l'errore se la stanza è piena
+                        socket.emit("Room joining error", {
+                            error: "Room is full"
+                        });
+                    }
                 } else {
+                    console.log("You can't access on room!");
 
-                    console.log("Room is full!");
-
+                    // invio l'errore se il gioco è iniziato
                     socket.emit("Room joining error", {
-                        error: "Room is full"
+                        error: "Game on room started"
                     });
                 }
 
@@ -125,18 +139,20 @@ io.sockets.on('connection', function(socket){
             }
         }
 
-
+        // se non trovo la stanza
+        // invio l'errore della stanza inesistente
         socket.emit("Room joining error", {
             error: "Room doesn't exist"
         });
 
     });
 
+    // funzione per ricevere la risposta del giocatore
     socket.on("Receive question",function(data){
-
 
         // cerco il socket tra i vari giocatori delle stanze
         let found = false;
+
         for(r in rooms) {
 
             if(found == true)
@@ -145,47 +161,59 @@ io.sockets.on('connection', function(socket){
             for(p in rooms[r].players){
 
                 let player = rooms[r].players[p];
+
+                // se trovo il giocatore nella stanza
                 if(player.socket == socket) {
-                    // se il giocatore ha gia risposto alla domanda
-                    if(rooms[r].timer == 0) {
+
+                    console.log(rooms[r].actualQuestion + " "  +  data.nActualQuestion);
+                    console.log(rooms[r].players[p].answer);
+
+                    // se si trova in una domanda diversa da quella della stanza
+                    if(rooms[r].actualQuestion != data.nActualQuestion){
+
+                        console.log("Ugo");
+                    }
+                    // se il giocatore non ha ancora risposto alla domanda
+                    else if(rooms[r].players[p].answer[rooms[r].actualQuestion] == false) {
+
                         console.log(rooms[r].actualQuestion);
-                        console.log("ciaone eeee ee e ");
 
-                        // se il giocatore si trova ad una risposta differente
-                        if(rooms[r].actualQuestion != data.nActualQuestion){
-
-                            player.answer[rooms[r].actualQuestion] = -1;
-                        } else {
-
-                            player.answer[data.nActualQuestion] = data.nActualAnswer;
-                        }
+                        // imposto la risposta del giocatore in base a quella che ha inserito
+                        player.answer[data.nActualQuestion] = data.nActualAnswer;
 
                         // se tutti i client hanno inviato la risposta
                         if(rooms[r].allPlayerAnswered() == true) {
-                            // invio la risposta corretta
-                            // DA FAREEEE
 
+                            // invio a ogni singolo socket il flag che indica se
+                            // la risposta che ha inserito è corretta o meno
                             for(i in rooms[r].players) {
 
                                 let s = rooms[r].players[i].socket;
                                 let _flagCorrectAnswer = false;
 
+                                // setto il flag a true se è uguale la risposta a quella della stanza
                                 if(rooms[r].questions[rooms[r].actualQuestion].correctAnswer == rooms[r].players[i].answer[rooms[r].actualQuestion]) {
                                     _flagCorrectAnswer = true;
                                 }
 
+                                // invio l'informazione
                                 s.emit("debug", {
                                     flagCorrectAnswer: _flagCorrectAnswer
                                 });
                             }
 
+                            // informo il giocatore che tutti hanno risposto
                             io.sockets.to(rooms[r].code).emit("All players answered", {
                                 correctAnswer: rooms[r].questions[rooms[r].actualQuestion].correctAnswer
                             });
 
+                            // imposto il timer a 3 secondi e lo avvio per la prossima domanda
                             rooms[r].timer = 3*1000;
                             rooms[r].handlePreparationTime();
                         }
+                    } else {
+
+                        console.log("ciaoone");
                     }
 
                     break;
@@ -203,7 +231,7 @@ function Player(socket, nick) {
     this.score = 0;
     this.nick = nick;
 
-    this.answer = [];
+    this.answer = Array(10).fill(false);
 }
 
 function Question(question, answer, correctAnswer) {
@@ -231,7 +259,7 @@ function Room() {
         for(p in this.players) {
             let player = this.players[p];
 
-            if(player.answer[this.actualQuestion] == null) {
+            if(player.answer[this.actualQuestion] == false) {
                 return false;
             }
         }

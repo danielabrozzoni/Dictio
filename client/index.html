@@ -3,8 +3,7 @@
         <script src="/socket.io/socket.io.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Signika" rel="stylesheet">
         <style>
-        /*
-        body{
+        /*body{
             background-color: #272933;
             font-family: 'Signika', sans-serif;
             font-weight: lighter;
@@ -345,32 +344,25 @@
 
         socket.on("Send question", function(data) {
 
-            if(data.nQuestion == nQuestion) {
+            nQuestion = data.nQuestion;
+            reset_answer();
 
-                reset_answer();
+            console.log("Send question " + nQuestion);
+            set_content_with_id("question", data.question);
 
-                console.log("Send question " + nQuestion);
-                set_content_with_id("question", data.question);
+            set_content_with_id("answer0", data.answers[0]);
+            set_content_with_id("answer1", data.answers[1]);
+            set_content_with_id("answer2", data.answers[2]);
+            set_content_with_id("answer3", data.answers[3]);
 
-                set_content_with_id("answer0", data.answers[0]);
-                set_content_with_id("answer1", data.answers[1]);
-                set_content_with_id("answer2", data.answers[2]);
-                set_content_with_id("answer3", data.answers[3]);
-
-                show_answer();
-            }
+            show_answer();
         });
 
         socket.on("All players answered", function (data) {
-            //alert("tutti hanno risposto");
-
-            //document.getElementById("answer" + data.correctAnswer).style.border = "1px solid red";
 
             // FARE IN MODO CHE IL GIOCATORE NON INSERISCA UNA NUOVA RISPOSTA
-
             set_content_with_id("correct_answer", "La risposta corretta è la n. " + data.correctAnswer);
 
-            nQuestion += 1;
         });
 
         socket.on("Answer time", function (data) {
