@@ -184,6 +184,8 @@ io.sockets.on('connection', function(socket){
                         // se tutti i client hanno inviato la risposta
                         if(rooms[r].allPlayerAnswered() == true) {
 
+                            console.log("ciao");
+
                             // invio a ogni singolo socket il flag che indica se
                             // la risposta che ha inserito è corretta o meno
                             for(i in rooms[r].players) {
@@ -259,7 +261,7 @@ function Room() {
         for(p in this.players) {
             let player = this.players[p];
 
-            if(player.answer[this.actualQuestion] == false) {
+            if(player.answer[this.actualQuestion] === false) {
                 return false;
             }
         }

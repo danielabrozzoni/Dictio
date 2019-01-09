@@ -3,7 +3,7 @@
         <script src="/socket.io/socket.io.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Signika" rel="stylesheet">
         <style>
-        /*body{
+        body{
             background-color: #272933;
             font-family: 'Signika', sans-serif;
             font-weight: lighter;
@@ -181,7 +181,7 @@
             transform: translateX(-50%);
 
             padding: 15px;
-        }*/
+        }
         </style>
     </head>
     <body>
@@ -355,6 +355,11 @@
             set_content_with_id("answer2", data.answers[2]);
             set_content_with_id("answer3", data.answers[3]);
 
+            for(let i = 0; i < 4; i++)
+            {
+                document.getElementById("answer" + i).style.backgroundColor = "white";
+            }
+
             show_answer();
         });
 
@@ -362,6 +367,7 @@
 
             // FARE IN MODO CHE IL GIOCATORE NON INSERISCA UNA NUOVA RISPOSTA
             set_content_with_id("correct_answer", "La risposta corretta è la n. " + data.correctAnswer);
+            document.getElementById("answer" + data.correctAnswer).style.backgroundColor = "green";
 
         });
 
@@ -388,12 +394,19 @@
                 return;
             }
 
+            document.getElementById("answer" + nAnswer).style.backgroundColor = "orange";
+
             console.log("Sending answer to server...");
 
             socket.emit("Receive question", {
                 nActualQuestion: nQuestion,
                 nActualAnswer: nAnswer
             });
+
+            for(var i = 0; i < 4; i++) {
+                document.getElementById("answer" + i).disabled = true;
+                //document.getElementById("answer" + i).style.border = "0";
+            }
         }
 
         show_menu();
