@@ -1,0 +1,179 @@
+body{
+    background-color: #272933;
+    font-family: 'Signika', sans-serif;
+    font-weight: lighter;
+}
+
+#menu_content, #answer_content {
+    text-align: center;
+    position: fixed;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+input {
+    background-color: #fff;
+    border-radius: 5px;
+    width: 200px;
+    height: 30px;
+    padding: 5px;
+    border: 0;
+    border-bottom: 2.5px solid #8f9194;
+    outline:none;
+
+    font-family: 'Signika', sans-serif;
+    font-family: Verdana;
+    font-size: 12px;
+}
+
+button {
+    background-color: #1fbba6;
+    border-radius: 5px;
+    width: 200px;
+    height: 30px;
+    padding: 5px;
+    border: 0;
+    border-bottom: 3.5px solid #1c9386;
+
+    outline: none;
+
+    color: white;
+
+    font-family: 'Signika', sans-serif;
+        font-weight: bold;
+    font-size: 12px;
+}
+
+button:active {
+    height: 28;
+    margin-top: 2px;
+    border-bottom: 2px solid #b0b2b3;
+}
+
+#menu, #game, #answer{
+
+    text-align: center;
+    background-color: #191a21;
+    width: 500px;
+    height: 310px;
+
+    color: white;
+
+    position: fixed;
+
+    border-radius: 15px;
+    border-bottom: 3px solid #0f1014;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#input_code_game {
+
+    margin-bottom: 3px;
+}
+
+#create_room_button {
+    background-color: #bb981f;
+    border-bottom: 3.5px solid #93641c;
+}
+
+#title {
+    width: 300px;
+    font-family: 'Signika', sans-serif;
+}
+
+#separation_line {
+    color: black;
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 0px;
+    margin: 1em 0;
+    padding: 0;
+}
+
+#error {
+    font-size: 13px;
+    margin-bottom: 10px;
+    padding: 5px;
+    margin-left: 50px;
+    text-align: center;
+    width: 190px;
+    display: none;
+
+    background-color: #be4b49;
+    border-top: 3px solid rgb(139, 3, 0);
+    border-radius: 5px;
+}
+
+#timer_bar {
+    position: absolute;
+    width: 500px;
+    background-color: yellow;
+    border-bottom-left-radius: 10px;
+    bottom: 0;
+    height: 50px;
+
+    background-color: #ffffff00;
+    border-bottom: 5px solid yellow;
+}
+
+#code_room {
+
+    font-size: 60px;
+
+    top: 50%;
+    position: absolute;
+    transform: translate(-50%,-50%);
+    left: 50%;
+
+    text-shadow: 0px 3px #737474;
+}
+
+#counter {
+
+    position: absolute;
+    bottom: 10;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#timer {
+
+    position: absolute;
+    bottom: 0;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+}
+
+#scritta {
+    position: relative;
+    top: 32%;
+}
+
+.answer {
+    text-align: center;
+
+    color: black;
+
+    background-color: white;
+    border-bottom: 3px solid #b0b2b3;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+#question {
+
+    width: 400px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+
+    padding: 15px;
+}
