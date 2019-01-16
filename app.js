@@ -1,26 +1,21 @@
 class Room {
     constructor() {
-        this.MAX_NUMBER_PLAYER = 2;
-        this.PREPARATION_TIME = 10 * 1000;
+        this.CAPACITY = 2;
+        this.PREPARATION_TIME = 10 * 1000; // 10 secs
+        this.ANSWER_TIME = 3*1000; // 3 secs
 
         this.players = [];
+        this.quizzes = [];
+
         this.code = this.createCode();
         this.timer = this.PREPARATION_TIME;
 
-        this.actualQuestion = -1;
+        this.actualQuiz = -1;
 
-        this.questions = [];
-
-
-        this.createQuestion = () => {
+        this.createQuiz = () => {
             // genero 4 parole randomiche
-            console.log("Create question");
+            console.log("Create quiz");
             var randomWord = randomWords(4);
-
-            // stampo temporaneamente le parole sul server
-            /*for(s in randomWord){
-                console.log(randomWord[s]);
-            }*/
 
             // cerco il significato della prima
 
@@ -34,11 +29,12 @@ class Room {
 
 
                 console.log("actual:", this);
-                this.questions[this.actualQuestion] = new Question(question, randomWord, random_number);
+                this.quizzes[this.actualQuiz] = new Quiz(question, randomWord, random_number);
                 // invio tutto quando è stato ricevuto il significato della parola
-                console.log(this.questions);
-                io.sockets.to(this.code).emit("Send question", {
-                    nQuestion: this.actualQuestion,
+                console.log(this.quizzes);
+                console.log("Send quiz");
+                io.sockets.to(this.code).emit("Send quiz", {
+                    nQuiz: this.actualQuiz,
                     question: question,
                     answers: randomWord
                 });
@@ -50,10 +46,10 @@ class Room {
                 }).catch(err => console.log(err));
         }
 
-        this.handleTime = (timerInterval, initialTimerInterval, f) => {
+        this.handleTime = (timerInterval, countdownSeconds, f) => {
 
-            this.actualQuestion++;
-            this.timer = initialTimerInterval;
+            this.actualQuiz++;
+            this.timer = countdownSeconds;
 
             this.set = this.interval = setInterval(() => {
 
@@ -65,8 +61,9 @@ class Room {
                     f();
 
                     clearInterval(this.interval);
-                }
-                if (this.actualQuestion == 0) {
+                } 
+                
+                if (this.actualQuiz == 0) {
 
                     io.sockets.to(this.code).emit("Preparation time", {
                         timer: this.timer
@@ -88,7 +85,7 @@ class Room {
         for (p in this.players) {
             let player = this.players[p];
 
-            if (player.answer[this.actualQuestion] === false) {
+            if (player.answer[this.actualQuiz] === false) {
                 return false;
             }
         }
@@ -100,7 +97,7 @@ class Room {
 
     isFull() {
 
-        if (this.players.length >= this.MAX_NUMBER_PLAYER)
+        if (this.players.length >= this.CAPACITY)
             return true;
         return false;
     }
@@ -124,9 +121,9 @@ class Room {
 
         let info = {
             code: this.code,
-            max_player: this.MAX_NUMBER_PLAYER,
+            capacity: this.CAPACITY,
             counter: this.players.length,
-            question: this.actualQuestion,
+            quiz: this.actualQuiz,
             timer: this.timer
         };
 
@@ -149,7 +146,7 @@ class Room {
 class Player {
 
     constructor(socket, nick) {
-        this.socket = socket; // forse togliere
+        this.socket = socket;
         this.score = 0;
         this.nick = nick;
     
@@ -158,7 +155,7 @@ class Player {
 
 }
 
-class Question {
+class Quiz {
 
     constructor(question, answer, correctAnswer) {
 
@@ -245,7 +242,7 @@ io.sockets.on('connection', function (socket) {
     });
 
     // giocatore fasullo
-    // DA FARE: le informazioni del giocatore (nickname e blabla)
+    // TODO: le informazioni del giocatore (nickname e blabla)
     let player = new Player(socket, "Dany");
     // variabile della stanza (nel caso in cui si debba creare)
     let r;
@@ -259,8 +256,8 @@ io.sockets.on('connection', function (socket) {
         // avvio il contatore per far partire il gioco
         //r.handlePreparationTime();
 
-        console.log(r.createQuestion);
-        r.handleTime(1000, 10000, r.createQuestion);
+        console.log(r.createQuiz);
+        r.handleTime(1000, r.PREPARATION_TIME, r.createQuiz);
 
         // inserisco il giocatore all'interno della stanza
         r.join(player);
@@ -281,7 +278,7 @@ io.sockets.on('connection', function (socket) {
             // se il codice è uguale e la stanza non ha ancora cominciato a giocare
             if (code.code == rooms[r].code) {
 
-                if (rooms[r].questions[0] == undefined) {
+                if (rooms[r].quizzes[0] == undefined) {
                     // inserisco nella stanza il giocatore
                     // se riesco (se non è piena la stanza)
                     if (rooms[r].join(player)) {
@@ -323,7 +320,7 @@ io.sockets.on('connection', function (socket) {
     });
 
     // funzione per ricevere la risposta del giocatore
-    socket.on("Receive question", function (data) {
+    socket.on("Receive answer", function (data) {
 
         // cerco il socket tra i vari giocatori delle stanze
         let found = false;
@@ -340,21 +337,21 @@ io.sockets.on('connection', function (socket) {
                 // se trovo il giocatore nella stanza
                 if (player.socket == socket) {
 
-                    console.log(rooms[r].actualQuestion + " " + data.nActualQuestion);
+                    console.log(rooms[r].actualQuiz + " " + data.nActualQuiz);
                     console.log(rooms[r].players[p].answer);
 
                     // se si trova in una domanda diversa da quella della stanza
-                    if (rooms[r].actualQuestion != data.nActualQuestion) {
+                    if (rooms[r].actualQuiz != data.nActualQuiz) {
 
                         console.log("Ugo");
                     }
                     // se il giocatore non ha ancora risposto alla domanda
-                    else if (rooms[r].players[p].answer[rooms[r].actualQuestion] == false) {
+                    else if (rooms[r].players[p].answer[rooms[r].actualQuiz] == false) {
 
-                        console.log(rooms[r].actualQuestion);
+                        console.log(rooms[r].actualQuiz);
 
                         // imposto la risposta del giocatore in base a quella che ha inserito
-                        player.answer[data.nActualQuestion] = data.nActualAnswer;
+                        player.answer[data.nActualQuiz] = data.nActualAnswer;
 
                         // se tutti i client hanno inviato la risposta
                         if (rooms[r].allPlayerAnswered() == true) {
@@ -369,7 +366,7 @@ io.sockets.on('connection', function (socket) {
                                 let _flagCorrectAnswer = false;
 
                                 // setto il flag a true se è uguale la risposta a quella della stanza
-                                if (rooms[r].questions[rooms[r].actualQuestion].correctAnswer == rooms[r].players[i].answer[rooms[r].actualQuestion]) {
+                                if (rooms[r].quizzes[rooms[r].actualQuiz].correctAnswer == rooms[r].players[i].answer[rooms[r].actualQuiz]) {
                                     _flagCorrectAnswer = true;
                                 }
 
@@ -381,15 +378,15 @@ io.sockets.on('connection', function (socket) {
 
                             // informo il giocatore che tutti hanno risposto
                             io.sockets.to(rooms[r].code).emit("All players answered", {
-                                correctAnswer: rooms[r].questions[rooms[r].actualQuestion].correctAnswer
+                                correctAnswer: rooms[r].quizzes[rooms[r].actualQuiz].correctAnswer
                             });
 
                             // imposto il timer a 3 secondi e lo avvio per la prossima domanda
                             rooms[r].timer = 3 * 1000;
-                            rooms[r].handleTime(1000, 5000, rooms[r].createQuestion);
+                            rooms[r].handleTime(1000, rooms[r].ANSWER_TIME, rooms[r].createQuiz);
 
-                            // 
-                            if(rooms[r].questions.length == 2){
+                            
+                            if(rooms[r].quizzes.length == 2){
                                 console.log(rooms[r].players);
                                 let obj = {
                                     players: []

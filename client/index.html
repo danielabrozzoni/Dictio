@@ -57,7 +57,7 @@
 
         var socket;
 
-        var nQuestion = 0;
+        var nQuiz = 0;
 
         socket = io();
 
@@ -138,21 +138,21 @@
         socket.on("Room joined", function(data) {
             show_game();
 
-            players_counter(data.counter + "/" + data.max_player);
+            players_counter(data.counter + "/" + data.capacity);
         });
 
         socket.on("Room created", function(data) {
 
             set_content_with_id("code_room", data.code);
 
-            players_counter(1 + "/" + data.max_player);
+            players_counter(1 + "/" + data.capacity);
 
             show_game();
         });
 
 
         socket.on("Players counter", function(data) {
-            players_counter(data.counter + "/" + data.max_player);
+            players_counter(data.counter + "/" + data.capacity);
         });
 
         socket.on("Preparation time", function(data) {
@@ -162,12 +162,12 @@
             document.getElementById("timer_bar").style.width = ((data.timer/1000)*500) / 10;
         });
 
-        socket.on("Send question", function(data) {
+        socket.on("Send quiz", function(data) {
 
-            nQuestion = data.nQuestion;
+            nQuiz = data.nQuiz;
             reset_answer();
 
-            console.log("Send question " + nQuestion);
+            console.log("Send quiz " + nQuiz);
             set_content_with_id("question", data.question);
 
             set_content_with_id("answer0", data.answers[0]);
@@ -218,8 +218,8 @@
 
             console.log("Sending answer to server...");
 
-            socket.emit("Receive question", {
-                nActualQuestion: nQuestion,
+            socket.emit("Receive answer", {
+                nActualQuiz: nQuiz,
                 nActualAnswer: nAnswer
             });
 
