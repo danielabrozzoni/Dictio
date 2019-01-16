@@ -387,6 +387,21 @@ io.sockets.on('connection', function (socket) {
                             // imposto il timer a 3 secondi e lo avvio per la prossima domanda
                             rooms[r].timer = 3 * 1000;
                             rooms[r].handleTime(1000, 5000, rooms[r].createQuestion);
+
+                            // 
+                            if(rooms[r].questions.length == 2){
+                                console.log(rooms[r].players);
+                                let obj = {
+                                    players: []
+                                };
+
+                                for(element in rooms[r].players) 
+                                    obj.players.push(element);
+
+                                console.log(obj);
+
+                                io.sockets.to(rooms[r].code).emit("Ranking", obj);
+                            }
                         }
                     } else {
 
