@@ -402,7 +402,6 @@ io.sockets.on('connection', function (socket) {
                         }
                     } else {
 
-                        console.log("ciaoone");
                     }
 
                     break;
