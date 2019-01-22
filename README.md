@@ -11,7 +11,6 @@ Mita Victor
 ## Roles
 * PROJECT_MANAGER = Daniela Brozzoni
 * DOCUMENTATION = Victor Mita
-* REACT = Victor Mita, Aldo Carrolo
 * NODE = Daniela Brozzoni, Aldo Carrolo
 * CSS = Aldo Carrolo
 
