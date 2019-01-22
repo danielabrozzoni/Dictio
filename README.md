@@ -2,11 +2,9 @@
 Improve your english while playing with your friends!
 
 ## Partecipants
-Brozzoni Daniela
-
-Carrolo Aldo
-
-Mita Victor
+* [Brozzoni Daniela](https://github.com/imaprincess)
+* [Carrolo Aldo](https://github.com/aldocarrolo)
+* [Mita Victor](https://github.com/VictorMita)
 
 ## Roles
 * PROJECT_MANAGER = Daniela Brozzoni
