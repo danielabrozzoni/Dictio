@@ -1,6 +1,6 @@
 class Room {
     constructor() {
-        this.CAPACITY = 2;
+        this.CAPACITY = 4;
         this.PREPARATION_TIME = 10 * 1000; // 10 secs
         this.ANSWER_TIME = 3*1000; // 3 secs
 
@@ -18,7 +18,7 @@ class Room {
             var randomWord = randomWords(4);
 
             // cerco il significato della prima
-            
+
             let random_number = Math.floor(Math.random() * 3);
 
             dict.definitions(randomWord[random_number]).then((res) => {
@@ -28,11 +28,11 @@ class Room {
                 question = capitalizeFirstLetter(question);
 
 
-                console.log("actual:", this);
+                //console.log("actual:", this);
                 this.quizzes[this.actualQuiz] = new Quiz(question, randomWord, random_number);
                 // invio tutto quando è stato ricevuto il significato della parola
-                console.log(this.quizzes);
-                console.log("Send quiz");
+                //console.log(this.quizzes);
+                //console.log("Send quiz");
                 io.sockets.to(this.code).emit("Send quiz", {
                     nQuiz: this.actualQuiz,
                     question: question,
@@ -53,7 +53,7 @@ class Room {
 
             this.set = this.interval = setInterval(() => {
 
-                console.log(this);
+                //console.log(this);
                 this.timer -= timerInterval;
 
                 if (this.timer <= 0) {
@@ -61,8 +61,8 @@ class Room {
                     f();
 
                     clearInterval(this.interval);
-                } 
-                
+                }
+
                 if (this.actualQuiz == 0) {
 
                     io.sockets.to(this.code).emit("Preparation time", {
@@ -149,10 +149,18 @@ class Player {
         this.socket = socket;
         this.score = 0;
         this.nick = nick;
-    
+
         this.answer = Array(10).fill(false);
     }
 
+    getInfo() {
+        let obj_temp = {
+            score: this.score,
+            nick: this.nick
+        };
+
+        return obj_temp;
+    }
 }
 
 class Quiz {
@@ -256,7 +264,7 @@ io.sockets.on('connection', function (socket) {
         // avvio il contatore per far partire il gioco
         //r.handlePreparationTime();
 
-        console.log(r.createQuiz);
+        //console.log(r.createQuiz);
         r.handleTime(1000, r.PREPARATION_TIME, r.createQuiz);
 
         // inserisco il giocatore all'interno della stanza
@@ -337,8 +345,8 @@ io.sockets.on('connection', function (socket) {
                 // se trovo il giocatore nella stanza
                 if (player.socket == socket) {
 
-                    console.log(rooms[r].actualQuiz + " " + data.nActualQuiz);
-                    console.log(rooms[r].players[p].answer);
+                    //console.log(rooms[r].actualQuiz + " " + data.nActualQuiz);
+                    //console.log(rooms[r].players[p].answer);
 
                     // se si trova in una domanda diversa da quella della stanza
                     if (rooms[r].actualQuiz != data.nActualQuiz) {
@@ -348,7 +356,7 @@ io.sockets.on('connection', function (socket) {
                     // se il giocatore non ha ancora risposto alla domanda
                     else if (rooms[r].players[p].answer[rooms[r].actualQuiz] == false) {
 
-                        console.log(rooms[r].actualQuiz);
+                        //console.log(rooms[r].actualQuiz);
 
                         // imposto la risposta del giocatore in base a quella che ha inserito
                         player.answer[data.nActualQuiz] = data.nActualAnswer;
@@ -356,7 +364,7 @@ io.sockets.on('connection', function (socket) {
                         // se tutti i client hanno inviato la risposta
                         if (rooms[r].allPlayerAnswered() == true) {
 
-                            console.log("ciao");
+                            //console.log("ciao");
 
                             // invio a ogni singolo socket il flag che indica se
                             // la risposta che ha inserito è corretta o meno
@@ -368,6 +376,7 @@ io.sockets.on('connection', function (socket) {
                                 // setto il flag a true se è uguale la risposta a quella della stanza
                                 if (rooms[r].quizzes[rooms[r].actualQuiz].correctAnswer == rooms[r].players[i].answer[rooms[r].actualQuiz]) {
                                     _flagCorrectAnswer = true;
+                                    rooms[r].players[i].score += 10;
                                 }
 
                                 // invio l'informazione
@@ -381,23 +390,23 @@ io.sockets.on('connection', function (socket) {
                                 correctAnswer: rooms[r].quizzes[rooms[r].actualQuiz].correctAnswer
                             });
 
-                            // imposto il timer a 3 secondi e lo avvio per la prossima domanda
-                            rooms[r].timer = 3 * 1000;
-                            rooms[r].handleTime(1000, rooms[r].ANSWER_TIME, rooms[r].createQuiz);
-
                             console.log("Quizzes length: " + rooms[r].quizzes.length);
                             if(rooms[r].quizzes.length == 2){
-                                console.log(rooms[r].players);
+                                //console.log(rooms[r].players);
                                 let obj = {
                                     players: []
                                 };
 
-                                for(element in rooms[r].players) 
-                                    obj.players.push(element);
-
-                                console.log(obj);
+                                for(element in rooms[r].players) {
+                                    obj.players.push(rooms[r].players[element].getInfo());
+                                }
 
                                 io.sockets.to(rooms[r].code).emit("Ranking", obj);
+                            } else {
+
+                                // imposto il timer a 3 secondi e lo avvio per la prossima domanda
+                                rooms[r].timer = 3 * 1000;
+                                rooms[r].handleTime(1000, rooms[r].ANSWER_TIME, rooms[r].createQuiz);
                             }
                         }
                     } else {

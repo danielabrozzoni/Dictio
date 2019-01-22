@@ -53,6 +53,8 @@
         </div>
 
         <div id="users_score" style="display: none;">
+            <div id="users_score_content">
+            </div>
         </div>
 
         <script>
@@ -212,6 +214,22 @@
 
         socket.on("Ranking", function(data) {
             // TODO
+
+
+
+            let players = data.players;
+
+            let users_score = document.getElementById("users_score_content");
+            for(let i = 0; i < players.length; i++) {
+
+                let div = document.createElement("div");
+
+                div.innerHTML = players[i].nick + ": " + players[i].score;
+
+                users_score.appendChild(div);
+            }
+
+            show_users_score();
         })
 
         function answerChosed(nAnswer){
@@ -229,7 +247,7 @@
                 document.getElementById("answer" + i).disabled = true;
                 //document.getElementById("answer" + i).style.border = "0";
             }
-            
+
             socket.emit("Receive answer", {
                 nActualQuiz: nQuiz,
                 nActualAnswer: nAnswer

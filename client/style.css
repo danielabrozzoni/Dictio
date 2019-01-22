@@ -4,7 +4,7 @@ body{
     font-weight: lighter;
 }
 
-#menu_content, #answer_content {
+#menu_content, #answer_content, #users_score_content {
     text-align: center;
     position: fixed;
 
@@ -52,7 +52,17 @@ button:active {
     border-bottom: 2px solid #b0b2b3;
 }
 
-#menu, #game, #answer{
+#users_score {
+    text-align:left;
+}
+
+#users_score_content {
+    left: 0%;
+    transform: translate(50%, -50%);
+    text-align: left;
+}
+
+#menu, #game, #answer, #users_score{
 
     text-align: center;
     background-color: #191a21;
