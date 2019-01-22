@@ -2,7 +2,9 @@
     <head>
         <script src="/socket.io/socket.io.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Signika" rel="stylesheet">
-        <!--link rel="stylesheet" type="text/css" href="client/style.css"-->
+        <link rel="stylesheet" type="text/css" href="client/style.css">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
         <div id="menu">
@@ -208,6 +210,10 @@
             set_content_with_id("user_answer", data.flagCorrectAnswer);
         });
 
+        socket.on("Ranking", function(data) {
+            // TODO
+        })
+
         function answerChosed(nAnswer){
 
             if(nAnswer < 0 || nAnswer > 4) {
@@ -218,15 +224,16 @@
 
             console.log("Sending answer to server...");
 
-            socket.emit("Receive answer", {
-                nActualQuiz: nQuiz,
-                nActualAnswer: nAnswer
-            });
 
             for(var i = 0; i < 4; i++) {
                 document.getElementById("answer" + i).disabled = true;
                 //document.getElementById("answer" + i).style.border = "0";
             }
+            
+            socket.emit("Receive answer", {
+                nActualQuiz: nQuiz,
+                nActualAnswer: nAnswer
+            });
         }
 
         show_menu();

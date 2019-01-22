@@ -18,7 +18,7 @@ class Room {
             var randomWord = randomWords(4);
 
             // cerco il significato della prima
-
+            
             let random_number = Math.floor(Math.random() * 3);
 
             dict.definitions(randomWord[random_number]).then((res) => {
@@ -385,7 +385,7 @@ io.sockets.on('connection', function (socket) {
                             rooms[r].timer = 3 * 1000;
                             rooms[r].handleTime(1000, rooms[r].ANSWER_TIME, rooms[r].createQuiz);
 
-                            
+                            console.log("Quizzes length: " + rooms[r].quizzes.length);
                             if(rooms[r].quizzes.length == 2){
                                 console.log(rooms[r].players);
                                 let obj = {
