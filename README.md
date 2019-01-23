@@ -1,12 +1,22 @@
-## Titolo progetto 
-Improve your english while playing with your friends!
+# Dictio
+## Migliora il tuo inglese mentre giochi con gli amici! 
+Dictio è una piattaforma innovativa che ti permette di migliorare il tuo inglese giocando con i tuoi amici. Nato fra l'unione dei classici multiplayer trivia e l'API di Oxford Dictionary, Dictio offre una serie di quiz volti a chi vuole imparare l'inglese divertendosi. 
 
-## Partecipants
+### Installazione
+Si auspica per il futuro di rendere il gioco accessibile a chiunque utilizzando un servizio web opportuno, per ora è necessario clonare la repo, avviare il progetto digitando ```node public/app.js``` e accedere a `localhost:2000`. 
+
+### Utilizzo
+Dopo aver scelto il nickname, è necessario creare una `Room` cliccando l'apposita voce del menu. Una volta creata la stanza viene comunicato il codice di essa: chiunque voglia giocare con noi dovrà inserirlo nella apposita barra.
+Passati 10 secondi dalla creazione della stanza, il gioco inizia: vengono mostrate le varie domande a cui rispondere. 
+Terminate le domande, viene visualizzata la classifica. 
+
+
+## Partecipanti
 * [Brozzoni Daniela](https://github.com/imaprincess)
 * [Carrolo Aldo](https://github.com/aldocarrolo)
 * [Mita Victor](https://github.com/VictorMita)
 
-## Roles
+## Ruoli
 * PROJECT_MANAGER = Daniela Brozzoni
 * DOCUMENTATION = Victor Mita
 * NODE = Daniela Brozzoni, Aldo Carrolo
