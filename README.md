@@ -1,4 +1,3 @@
-# Dictio
 ![](https://github.com/imaprincess/Dictio/blob/master/Images/dictiogame.png)
 ## Migliora il tuo inglese mentre giochi con gli amici! 
 Dictio è una piattaforma innovativa che ti permette di migliorare il tuo inglese giocando con i tuoi amici. Nato fra l'unione dei classici multiplayer trivia e l'API di Oxford Dictionary, Dictio offre una serie di quiz volti a chi vuole imparare l'inglese divertendosi. 
