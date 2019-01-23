@@ -248,7 +248,7 @@
                 //document.getElementById("answer" + i).style.border = "0";
             }
 
-            socket.emit("Receive answer", {
+            socket.emit("Sending answer", {
                 nActualQuiz: nQuiz,
                 nActualAnswer: nAnswer
             });

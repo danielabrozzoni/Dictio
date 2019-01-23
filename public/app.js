@@ -328,7 +328,7 @@ io.sockets.on('connection', function (socket) {
     });
 
     // funzione per ricevere la risposta del giocatore
-    socket.on("Receive answer", function (data) {
+    socket.on("Sending answer", function (data) {
 
         // cerco il socket tra i vari giocatori delle stanze
         let found = false;
