@@ -213,6 +213,16 @@ let io = require('socket.io')(serv);
 
 io.sockets.on('connection', function (socket) {
 
+    let player;
+    // variabile della stanza (nel caso in cui si debba creare)
+    let r;
+
+    socket.on("Send Name", function (data) {
+        console.log(data.name);
+
+        player = new Player(socket, data.name);
+    });
+
     // funzione di disconnessione del giocatore
     socket.on('disconnect', function () {
 
@@ -249,33 +259,28 @@ io.sockets.on('connection', function (socket) {
         }
     });
 
-    // giocatore fasullo
-    // TODO: le informazioni del giocatore (nickname e blabla)
-    let player = new Player(socket, "Dany");
-    // variabile della stanza (nel caso in cui si debba creare)
-    let r;
-
     // funzione per la creazione della stanza
     socket.on('New room', function () {
+        if(player != "undefined") {
+            console.log('Client create new room...');
+            // creo la stanza
+            r = new Room();
+            // avvio il contatore per far partire il gioco
+            //r.handlePreparationTime();
 
-        console.log('Client create new room...');
-        // creo la stanza
-        r = new Room();
-        // avvio il contatore per far partire il gioco
-        //r.handlePreparationTime();
+            //console.log(r.createQuiz);
+            r.handleTime(1000, r.PREPARATION_TIME, r.createQuiz);
 
-        //console.log(r.createQuiz);
-        r.handleTime(1000, r.PREPARATION_TIME, r.createQuiz);
+            // inserisco il giocatore all'interno della stanza
+            r.join(player);
+            socket.join(r.code);
 
-        // inserisco il giocatore all'interno della stanza
-        r.join(player);
-        socket.join(r.code);
+            // inserisco la stanza nel vettore
+            rooms.push(r);
 
-        // inserisco la stanza nel vettore
-        rooms.push(r);
-
-        // invio le informazioni al giocatore che ha creato la stanza
-        socket.emit("Room created", r.getInfoRoom());
+            // invio le informazioni al giocatore che ha creato la stanza
+            socket.emit("Room created", r.getInfoRoom());
+        }
     });
 
     // funzione per accedere alla stanza

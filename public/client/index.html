@@ -3,11 +3,13 @@
         <script src="/socket.io/socket.io.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Signika" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="client/style.css">
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="google-signin-client_id" content="849916256256-jg2nbu7u6rdogbmr46divirc7oub8524.apps.googleusercontent.com">
     </head>
     <body>
-        <div id="menu">
+        <div class="g-signin2" id="google_button" data-onsuccess="onSignIn"></div>
+        <div id="menu" style="display:none;">
             <div id="menu_content">
                 <div id="title">
                     <h1>Dictio</h1>
@@ -59,11 +61,35 @@
 
         <script>
 
-        var socket;
+        let google_info = {
+        };
+
+        let socket = io();
+
+        function onSignIn(googleUser) {
+            var profile = googleUser.getBasicProfile();
+            console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+            console.log('Name: ' + profile.getName());
+            console.log('Image URL: ' + profile.getImageUrl());
+            console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+
+            google_info = {
+                id: profile.getId(),
+                name: profile.getName(),
+                img: profile.getImageUrl(),
+                email: profile.getEmail()
+            };
+
+            document.getElementById("google_button").style.display = "none";
+
+            show_menu();
+
+            socket.emit("Send Name", {
+                name: google_info.name
+            });
+        }
 
         var nQuiz = 0;
-
-        socket = io();
 
         var createRoom = function() {
 
@@ -140,6 +166,7 @@
         }
 
         socket.on("Room joined", function(data) {
+
             show_game();
 
             players_counter(data.counter + "/" + data.capacity);
@@ -254,7 +281,7 @@
             });
         }
 
-        show_menu();
+        //show_menu();
         </script>
 
     </body>
