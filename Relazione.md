@@ -1,4 +1,4 @@
-# Dictio 
+![](https://github.com/imaprincess/Dictio/blob/master/Images/dictiogame.png)
 
 ## Manuale utente
 ### Cos'è dictio? 
@@ -55,3 +55,5 @@ Ogni stanza contiene un numero limitato di players (per ora 4) e un numero di qu
 
 
 ### Che tecnologie sono state utilizzate? 
+#### Gestione del server
+#### Gestione del client 
