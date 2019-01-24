@@ -49,11 +49,38 @@ Ogni quiz è formato da una domanda, quattro risposte possibili e un numero, che
 I quiz sono formati casualmente, utilizzando due API, una per fornire quattro parole random e una per fornire la definizione di una di esse.
 
 ### Gestione delle stanze
-Ogni stanza è a sé stante e indipendente dalle altre, e ha senso solo quando popolata da giocatori. È identificata da un codice univoco, creato casualmente da un insieme di lettere maiuscole e minuscole (circa 50 lettere, cioè 26 maiuscole e 26 minuscole meno qualche lettera considerata "non ben chiara" quando appare a schermo - ad esempio, la i maiuscola e la L minuscola sono state tolte, perché facilmente confondibili) e utilizzato dai player quando vogliono unirsi ad una nuova Room. 
+Ogni stanza è a sé stante e indipendente dalle altre, e ha senso solo quando popolata da giocatori. È identificata da un codice univoco, creato casualmente da un insieme di lettere maiuscole e minuscole (circa 50 lettere, cioè 26 maiuscole e 26 minuscole meno qualche lettera considerata "non ben chiara" quando appare a schermo - ad esempio, la i maiuscola e la L minuscola sono state tolte, perché facilmente confondibili), utilizzato dai player quando vogliono unirsi ad una nuova Room e dal server quando vuole emettere le domande e la classifica.
 
 Ogni stanza contiene un numero limitato di players (per ora 4) e un numero di quiz. Player e quiz sono indipendenti e diversi da una stanza all'altra, non vengono mai riutilizzati, ma creati ogni volta nuovi. 
 
 
 ### Che tecnologie sono state utilizzate? 
-#### Gestione del server
-#### Gestione del client 
+Il server è programmato utilizzando node.js, il client invece utilizzando HTML, CSS e Javascript. 
+
+Lo scambio di messaggi è gestito grazie a socket.io, che permette di inviare messaggi ad un certo canale (identificato dal codice della Room) e di definire le azioni da eseguire quando ricevuto un certo messaggio. 
+Ad esempio, diamo un'occhiata al codice che invia una domanda: 
+
+```app.js```
+```javascript
+/* Emette un messaggio "Send quiz" ai client iscritti al canale this.code (il codice della Room attuale), 
+al messaggio è allegato un oggetto, contenente la domanda, 
+le quattro possibili risposte e il numero del quiz attuale. */
+
+
+io.sockets.to(this.code).emit("Send quiz", {
+                    nQuiz: this.actualQuiz,
+                    question: question,
+                    answers: randomWord
+                });
+```
+
+```index.html```
+```javascript
+/* Alla ricezione del messaggio "Send quiz" e dei data allegati, 
+mostra la domanda all'utente */
+
+
+socket.on("Send quiz", function(data) {
+              // Codice per mostrare la domanda a schermo
+        });
+```
